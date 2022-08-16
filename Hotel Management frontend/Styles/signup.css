@@ -1,0 +1,22 @@
+.container{
+    width:100%;
+  
+    text-align:center;
+}
+.container>div{
+    width:30%;
+    border: 2px solid black;
+    margin:auto;
+    padding:10px;
+
+}
+.form{
+    width:70%;
+    margin:auto;
+    padding:5px;
+}
+input,button{
+    padding: 10px;
+    margin-top: 10px;
+}
+

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Page</title>
+    <link rel="stylesheet" href="../Styles/admin.css" />
+  </head>
+  <body>
+    <div class="main_div">
+      <form id="form">
+        <select name="Category" id="category">
+          <option value="family">Family</option>
+          <option value="deluxe">Deluxe</option>
+          <option value="suite">Suite</option>
+        </select>
+        <input type="text" placeholder="Image URL" id="image" />
+        <select name="TypeOfRoom" id="type_of_room">
+          <option id="signle" value="single">Single</option>
+          <option id="double" value="double">Double</option>
+        </select>
+
+        <select name="BedType" id="bed_type">
+          <option value="onebed">One Bed</option>
+          <option value="twobed">Two Bed</option>
+        </select>
+        <input
+          type="number"
+          id="number_of_person"
+          placeholder="Number of person"
+        />
+        <input type="number" id="capacity" placeholder="Capacity" />
+        <input type="number" id="cost" placeholder="Cost" />
+        <input type="checkbox" id="booked" />
+        <label for="booked">Booked</label>
+        <input type="submit" class="submit_form" />
+      </form>
+    </div>
+    <div class="table_div">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Image URL</th>
+            <th>Type of room</th>
+            <th>Bed Type</th>
+            <th>Number Of Person</th>
+            <th>Capacity</th>
+            <th>Cost</th>
+            <th>Booked Status</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="edit_div">
+    </div>
+  </body>
+</html>
+<script>
+  const api = 'https://hotel-management-backend.herokuapp.com/api/data';
+  let form = document.getElementById('form');
+  form.addEventListener('submit', postData);
+  function postData(e) {
+    e.preventDefault();
+    let category = document.getElementById('category').value;
+    let image_url = document.getElementById('image').value;
+    let type_of_room = document.getElementById('type_of_room').value;
+    let bed_type = document.getElementById('bed_type').value;
+    let number_of_person = document.getElementById('number_of_person').value;
+    let capacity = document.getElementById('capacity').value;
+    let cost = document.getElementById('cost').value;
+    let booked = document.getElementById('booked').value;
+    let obj = {
+      category,
+      image_url,
+      type_of_room,
+      bed_type,
+      number_of_person,
+      capacity,
+      cost,
+      booked: 'false',
+    };
+    if (
+      !image_url == '' ||
+      !number_of_person == '' ||
+      !capacity == '' ||
+      !cost == ''
+    ) {
+      console.log(obj);
+      fetch(api, {
+        method: 'POST',
+        body: JSON.stringify(obj),
+        headers: { 'content-type': 'application/json' },
+      }).then((res) => fetchData());
+    } else {
+      alert('Please enter the all inputs');
+    }
+  }
+
+  fetchData();
+  function fetchData() {
+    fetch(api)
+      .then((res) => res.json())
+      .then((res) => display(res));
+  }
+  function display(data) {
+    let tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+    data.map((item) => {
+      tbody.innerHTML += `
+      <tr>
+        <td>${item.id}</td>
+        <td>${item.category}</td>
+        <td>${item.image_url}</td>
+        <td>${item.type_of_room}</td>
+        <td>${item.bed_type}</td>
+        <td>${item.number_of_person}</td>
+        <td>${item.capacity}</td>
+        <td>${item.cost}</td>
+        <td>${item.booked}</td>
+        <td class="edit" onClick="editItem(${item.id})">EDIT</td>
+        <td class="delete" onClick="deleteItem(${item.id})">DELETE</td>
+      </tr>
+      `;
+    });
+  }
+  function deleteItem(id) {
+    fetch(api + `/${id}`, {
+      method: 'DELETE',
+    }).then((res) => {
+      alert('item is deleted');
+      fetchData();
+    });
+  }
+
+  var category = ['family', 'deluxe', 'suite'];
+  var room = ['single', 'double'];
+  var bed = ['onebed', 'twobed', 'threebed'];
+  function editItem(id) {
+    fetch(api + `/${id}`)
+      .then((res) => res.json())
+      .then((res) => {
+        let editDiv = document.getElementById('edit_div');
+        editDiv.innerHTML = '';
+        editDiv.style.display = 'block';
+        // console.log("id",id)
+        let select = document.createElement('select');
+        category.map((e) => {
+          if (e == res.category) {
+            select.innerHTML += `<option selected value="${e}">${e}</option>`;
+          } else {
+            select.innerHTML += `<option value="${e}">${e}</option>`;
+          }
+        });
+
+        let image = document.createElement('input');
+        image.setAttribute('type', 'text');
+        image.value = res.image_url;
+
+        let selectroom = document.createElement('select');
+        room.map((e) => {
+          if (e == res.type_of_room) {
+            selectroom.innerHTML += `<option selected value="${e}">${e}</option>`;
+          } else {
+            selectroom.innerHTML += `<option value="${e}">${e}</option>`;
+          }
+        });
+        let selectbed = document.createElement('select');
+        bed.map((e) => {
+          if (e == res.bed_type) {
+            selectbed.innerHTML += `<option selected value="${e}">${e}</option>`;
+          } else {
+            selectbed.innerHTML += `<option value="${e}">${e}</option>`;
+          }
+        });
+
+        let numberPerson = document.createElement('input');
+        numberPerson.setAttribute('type', 'text');
+        numberPerson.value = res.number_of_person;
+
+        let numbercapacity = document.createElement('input');
+        numbercapacity.setAttribute('type', 'text');
+        numbercapacity.value = res.capacity;
+
+        let numberCost = document.createElement('input');
+        numberCost.setAttribute('type', 'text');
+        numberCost.value = res.cost;
+        let btn = document.createElement('button');
+        btn.innerText = 'Submit';
+        btn.addEventListener('click', () => {
+          let obj = {
+            category: select.value,
+            image_url: image.value,
+            type_of_room: selectroom.value,
+            bed_type: selectbed.value,
+            number_of_person: numberPerson.value,
+            capacity: numbercapacity.value,
+            cost: numberCost.value,
+            booked: 'false',
+          };
+          fetch(api + `/${id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(obj),
+            headers: { 'content-type': 'application/json' },
+          }).then((r) => {
+            editDiv.style.display = 'none';
+            alert('item is updated');
+            fetchData();
+          });
+        });
+        editDiv.append(
+          select,
+          image,
+          selectroom,
+          selectbed,
+          numberPerson,
+          numbercapacity,
+          numberCost,
+          btn
+        );
+      });
+  }
+</script>

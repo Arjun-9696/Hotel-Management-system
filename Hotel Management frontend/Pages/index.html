@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel</title>
+    <link rel="stylesheet" href="../Styles/hotel.css">
+</head>
+<body>
+    <a href="signin.html">
+    <button>Login</button></a>
+    <div id="hotel_data">
+    </div>
+
+</body>
+</html>
+<script>
+    const api="https://hotel-management-backend.herokuapp.com/api/data"
+    fetchData();
+  function fetchData() {
+    fetch(api)
+      .then((res) => res.json())
+      .then((res) => display(res));
+  }
+  function display(data) {
+    let hotel_data = document.getElementById('hotel_data');
+    hotel_data.innerHTML = '';
+    data.map((item) => {
+      hotel_data.innerHTML += `
+      <div class="data">
+        <image width="500px" src=${item.image_url}/>
+        <div>
+        <h2>${item.category}</h2>
+        <hr>
+        <h4>Type Of Room : ${item.type_of_room}</h4>
+        <h4>Bed Type : ${item.bed_type}</h4>
+        <h4>Number of Person : ${item.number_of_person}</td>
+        <h4>Capacity : ${item.capacity}</h4>
+        <h4>Cost :  ₹ ${item.cost}/Night</h4>
+        <a href="user.html"><button>Book Now</button></a>
+        </div>
+      </div>
+      `;
+    });
+   
+  }
+</script>
